@@ -11,6 +11,7 @@ const mockRoutes = [
     isFavorite: false,
     offers: [],
     type: 'taxi',
+    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
   },
   {
     id: 'f4b62099-297f-4c3d-a702-94eec4a2808c',
@@ -21,7 +22,8 @@ const mockRoutes = [
     destination: 'bfa5cb75-a1fe-4b77-a93c-0e528e910e04',
     isFavorite: false,
     offers: [{ title: 'Add luggage', price: 120 }],
-    type: 'drive'
+    type: 'drive',
+    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
   },
   {
     id: 'f4b62099-293f-4c3d-a702-94eec8a2808c',
@@ -31,8 +33,9 @@ const mockRoutes = [
     dateTo: '2019-07-11T11:22:13.375Z',
     destination: 'bfa5cb75-a1fe-4b77-a83c-0e828e910e04',
     isFavorite: false,
-    offers: [{ title: 'Add luggage', price: 120 }, { title: 'Add luggage', price: 120 }],
-    type: 'taxi'
+    offers: [{ title: 'Add luggage', price: 120 }, { title: 'Choose seats', price: 169 }],
+    type: 'taxi',
+    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
   },
   {
     id: 'f4b62099-293f-4c3d-a702-94eec3a2808c',
@@ -42,8 +45,9 @@ const mockRoutes = [
     dateTo: '2019-07-11T11:22:13.375Z',
     destination: 'bfa5cb75-a1fe-4b77-a83c-0e528e010e04',
     isFavorite: true,
-    offers: [{ title: 'Add luggage', price: 120 }, { title: 'Add luggage', price: 120 }, { title: 'Add luggage', price: 120 }],
-    type: 'flight'
+    offers: [{ title: 'Add luggage', price: 120 }, { title: 'Add meal', price: 120 }, { title: 'Travel by train', price: 120 }],
+    type: 'flight',
+    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
   }
 ];
 

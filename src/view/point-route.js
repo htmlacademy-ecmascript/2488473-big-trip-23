@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import timeFormat from '../consts.js';
 import dayjs from 'dayjs';
 import { makeFirstUppercase } from '../utils.js';
@@ -64,24 +64,15 @@ function createRouteTemplate(data) {
   `;
 }
 
-export default class RouteView {
+export default class RouteView extends AbstractView {
+  #route = null;
+
   constructor({ route }) {
-    this.route = route;
+    super();
+    this.#route = route;
   }
 
-  getTemplate() {
-    return createRouteTemplate(this.route);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
+  get template() {
+    return createRouteTemplate(this.#route);
   }
 }

@@ -1,5 +1,5 @@
-import { createElement } from '../render.js';
 import { makeFirstUppercase } from '../utils.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { eventTypes, offerTypes } from '../consts.js';
 import dayjs from 'dayjs';
 
@@ -18,8 +18,11 @@ function createEventTypeTemplate(selectedType = '') {
   return result;
 }
 
-function createOfferTypeTemplate(selectedOffers = []) {
+function createOfferTypeTemplate(offers = []) {
   let result = '';
+  const selectedOffers = [];
+
+  offers.forEach((item) => selectedOffers.push(item.title));
 
   for (let i = 0; i < offerTypes.length; i++) {
 
@@ -29,7 +32,7 @@ function createOfferTypeTemplate(selectedOffers = []) {
 
     result += `
     <div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerName}-1" type="checkbox" name="event-offer-${offerName}" ${selectedOffers.includes(offerName) ? 'checked' : ''}>
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerName}-1" type="checkbox" name="event-offer-${offerName}" ${selectedOffers.includes(offerDesc) ? 'checked' : ''}>
       <label class="event__offer-label" for="event-offer-${offerName}-1">
         <span class="event__offer-title">${offerDesc}</span>
         &plus;&euro;&nbsp;
@@ -70,7 +73,7 @@ function createEditTemplate(data) {
           <label class="event__label  event__type-output" for="event-destination-1">
             ${makeFirstUppercase(data.type)}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${data.destination}" list="destination-list-1">
+          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${data.name}" list="destination-list-1">
           <datalist id="destination-list-1">
             <option value="Amsterdam"></option>
             <option value="Geneva"></option>
@@ -91,7 +94,7 @@ function createEditTemplate(data) {
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${data.price}">
+          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${data.basePrice}">
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -118,24 +121,13 @@ function createEditTemplate(data) {
   </li>`;
 }
 
-export default class EditView {
+export default class EditView extends AbstractView {
   constructor ({routesEdit}) {
+    super();
     this.routesEdit = routesEdit;
   }
 
-  getTemplate () {
+  get template () {
     return createEditTemplate(this.routesEdit);
-  }
-
-  getElement () {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement () {
-    this.element = null;
   }
 }
