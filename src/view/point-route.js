@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { makeFirstUppercase } from '../utils.js';
 
 function createRouteOffersTemplate(data) {
+
   let resultTemplate = '';
 
   for (let i = 0; i < data.offers.length; i++) {

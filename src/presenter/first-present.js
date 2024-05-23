@@ -1,56 +1,44 @@
-import { render } from '../render.js';
-import RouteView from '../view/point-route.js';
-import { replace } from '../framework/render.js';
-import EditView from '../view/edit-point.js';
-import { isEscape } from '../utils.js';
+import RoutePresenter from './route-presenter.js';
+import SortView from '../view/list-sort.js';
+import TopFrame from '../view/top-frame.js';
+import NewRouteView from '../view/new-point.js';
+import { render } from '../framework/render.js';
 
 export default class Presenter {
-  #container = document.querySelector('.trip-events__list');
+  #routes = null;
+  routesInstanse = [];
 
   constructor({ routes }) {
-    this.routes = routes;
+    this.#routes = routes;
   }
 
-  #submitHandler(evt) {
-    evt.preventDefault();
-  }
+  closeAllRoutes = () => {
+    this.routesInstanse.forEach((item) => {
+      item.setStateView();
+    });
+  };
 
   init() {
-    this.routes.forEach((route) => {
+    this.#routes.forEach((item) => {
+      const view = new RoutePresenter({ route: item });
+      this.routesInstanse.push(view);
 
-      const routeView = new RouteView({route: route});
-      const editView = new EditView({routesEdit: route});
+      view.render();
+    });
 
-      routeView.element.querySelector('.event__rollup-btn')
-        .addEventListener('click', () => {
-          replace(editView, routeView);
+    const topFrame = new TopFrame({ info: { cost: this.#routes.reduce((currentSum, item) => currentSum + item.basePrice, 0) } });
+    render(topFrame, document.querySelector('.trip-main'), 'afterbegin');
 
-          editView.element
-            .querySelector('.event__save-btn')
-            .addEventListener('click', this.#submitHandler);
+    const sort = new SortView();
+    render(sort, document.querySelector('.trip-events'), 'afterbegin');
 
-          editView.element
-            .querySelector('.event__rollup-btn')
-            .addEventListener('click', clickHandlerClose);
-          document.addEventListener('keydown', keydownHandlerClose);
+    const addEventBtn = document.querySelector('.trip-main__event-add-btn');
+    addEventBtn.addEventListener('click', () => {
+      this.closeAllRoutes();
+      const newRouteView = new NewRouteView();
 
-          function clickHandlerClose() {
-            try {
-              replace(routeView, editView);
-              document.removeEventListener('keydown', keydownHandlerClose);
-            } catch {
-              document.removeEventListener('keydown', keydownHandlerClose);
-            }
-          }
-
-          function keydownHandlerClose(evt) {
-            if (isEscape(evt)) {
-              clickHandlerClose();
-            }
-          }
-        });
-
-      render(routeView, this.#container);
+      render(newRouteView, document.querySelector('.trip-events__list'), 'afterbegin');
+      newRouteView.init();
     });
   }
 }

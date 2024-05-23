@@ -1,7 +1,6 @@
 import { makeFirstUppercase } from '../utils.js';
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-view.js';
 import { eventTypes, offerTypes } from '../consts.js';
-import dayjs from 'dayjs';
 
 function createEventTypeTemplate(selectedType = '') {
   let result = '';
@@ -47,9 +46,6 @@ function createOfferTypeTemplate(offers = []) {
 
 function createEditTemplate(data) {
 
-  const dataFrom = dayjs(data.dateFrom).format('DD/MM/YY HH:MM');
-  const dataTo = dayjs(data.dateTo).format('DD/MM/YY HH:MM');
-
   return `
   <li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
@@ -83,10 +79,10 @@ function createEditTemplate(data) {
 
         <div class="event__field-group  event__field-group--time">
           <label class="visually-hidden" for="event-start-time-1">From</label>
-          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dataFrom}">
+          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${data.dateFrom}">
           &mdash;
           <label class="visually-hidden" for="event-end-time-1">To</label>
-          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dataTo}">
+          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${data.dateTo}">
         </div>
 
         <div class="event__field-group  event__field-group--price">
@@ -121,8 +117,8 @@ function createEditTemplate(data) {
   </li>`;
 }
 
-export default class EditView extends AbstractView {
-  constructor ({routesEdit}) {
+export default class EditView extends AbstractStatefulView {
+  constructor ({ routesEdit }) {
     super();
     this.routesEdit = routesEdit;
   }
@@ -130,4 +126,6 @@ export default class EditView extends AbstractView {
   get template () {
     return createEditTemplate(this.routesEdit);
   }
+
+  _restoreHandlers() {}
 }

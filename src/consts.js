@@ -1,4 +1,5 @@
 const timeFormat = 'HH:mm';
+const timeFormatEdit = 'DD/MM/YY HH:mm';
 
 const eventTypes = [
   'taxi',
@@ -19,4 +20,4 @@ const offerTypes = [
   { train: 'Travel by train', price: 40 },
 ];
 
-export { timeFormat as default, eventTypes, offerTypes };
+export { timeFormat as default, eventTypes, offerTypes, timeFormatEdit };
