@@ -1,23 +1,19 @@
+
 const timeFormat = 'HH:mm';
+const timeFormatView = {
+  minutly: 'mm[M]',
+  hourly: 'HH[H] mm[M]',
+  dayly: 'DD[D] HH[H] mm[M]'
+};
 const timeFormatEdit = 'DD/MM/YY HH:mm';
 
-const eventTypes = [
-  'taxi',
-  'bus',
-  'train',
-  'ship',
-  'drive',
-  'flight',
-  'check-in',
-  'sightseeing',
-  'restaurant',
-];
-const offerTypes = [
-  { luggage: 'Add luggage', price: 50 },
-  { comfort: 'Switch to comfort', price: 80 },
-  { meal: 'Add meal', price: 15 },
-  { seats: 'Choose seats', price: 5 },
-  { train: 'Travel by train', price: 40 },
-];
+const connectionFields = ['https://23.objects.htmlacademy.pro', 'Basic aesadffdasf6Hfwj73C'];
 
-export { timeFormat as default, eventTypes, offerTypes, timeFormatEdit };
+const filterFuncs = {
+  everything: () => true,
+  future: (item) => new Date(item.dateFrom) > new Date(),
+  present: (item) => item.dateFrom <= new Date() && item.dateTo >= new Date(),
+  past: (item) => item.dateTo < new Date()
+};
+
+export { timeFormat as default, timeFormatEdit, connectionFields, timeFormatView, filterFuncs };

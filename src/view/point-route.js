@@ -1,32 +1,48 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import timeFormat from '../consts.js';
+import timeFormat, { timeFormatView } from '../consts.js';
+import duration from 'dayjs/plugin/duration.js';
 import dayjs from 'dayjs';
-import { makeFirstUppercase } from '../utils.js';
+import { getDateDiff } from '../utils.js';
 
-function createRouteOffersTemplate(data) {
+dayjs.extend(duration);
 
+function insertCorrectTimeFormatted (dateFrom, dateTo) {
+  const date = dayjs.duration(getDateDiff(dateFrom, dateTo));
+  if (date.days()) {
+    return date.format(timeFormatView.dayly);
+  }
+
+  if (date.hours()) {
+    return date.format(timeFormatView.hourly);
+  }
+
+  return date.format(timeFormatView.minutly);
+}
+
+function createRouteOffersTemplate(selected, all) {
   let resultTemplate = '';
 
-  for (let i = 0; i < data.offers.length; i++) {
-    resultTemplate += `
-      <li class="event__offer">
-        <span class="event__offer-title">${data.offers[i].title}</span>
-        &plus;&euro;&nbsp;
-        <span class="event__offer-price">${data.offers[i].price}</span>
-      </li>
-    `;
+  for (let i = 0; i < all.offers.length; i++) {
+    if (selected.includes(all.offers[i].id)) {
+      resultTemplate += `
+        <li class="event__offer">
+          <span class="event__offer-title">${all.offers[i].title}</span>
+          &plus;&euro;&nbsp;
+          <span class="event__offer-price">${all.offers[i].price}</span>
+        </li>
+      `;
+    }
   }
 
   return resultTemplate;
 }
 
-function createRouteTemplate(data) {
+function createRouteTemplate(data, allOffers) {
 
   const dataFrom = dayjs(data.dateFrom);
   const dataTo = dayjs(data.dateTo);
-  const dataCalculate = dataTo.subtract(dataFrom.hour(), 'hours').subtract(dataFrom.minute(), 'minutes');
   const dataDayColumn = dayjs(data.dateFrom).format('MMM DD').toUpperCase();
-  const eventTitle = `${makeFirstUppercase(data.type)} ${makeFirstUppercase(data.name)}`;
+  const eventTitle = `${data.type} ${data.destination}`;
 
   return `
   <li class="trip-events__item">
@@ -35,21 +51,21 @@ function createRouteTemplate(data) {
       <div class="event__type">
         <img class="event__type-icon" width="42" height="42" src="img/icons/${data.type}.png" alt="Event type icon">
       </div>
-      <h3 class="event__title">${eventTitle}</h3>
+      <h3 class="event__title upcs">${eventTitle}</h3>
       <div class="event__schedule">
         <p class="event__time">
           <time class="event__start-time" datetime="2019-03-18T14:30">${dataFrom.format(timeFormat)}</time>
           &mdash;
           <time class="event__end-time" datetime="2019-03-18T16:05">${dataTo.format(timeFormat)}</time>
         </p>
-        <p class="event__duration">${dataCalculate.hour()}H ${dataCalculate.minute()}M</p>
+        <p class="event__duration">${insertCorrectTimeFormatted(dataFrom, dataTo)}</p>
       </div>
       <p class="event__price">
         &euro;&nbsp;<span class="event__price-value">${data.basePrice}</span>
       </p>
       <h4 class="visually-hidden">Offers:</h4>
       <ul class="event__selected-offers">
-        ${createRouteOffersTemplate(data)}
+        ${createRouteOffersTemplate(data.offers, allOffers)}
       </ul>
       <button class="event__favorite-btn  ${data.isFavorite ? 'event__favorite-btn--active' : ''}" type="button">
         <span class="visually-hidden">Add to favorite</span>
@@ -67,13 +83,15 @@ function createRouteTemplate(data) {
 
 export default class RouteView extends AbstractView {
   #route = null;
+  #allOffers = null;
 
-  constructor({ route }) {
+  constructor(route, allOffers) {
     super();
     this.#route = route;
+    this.#allOffers = allOffers[0];
   }
 
   get template() {
-    return createRouteTemplate(this.#route);
+    return createRouteTemplate(this.#route, this.#allOffers);
   }
 }

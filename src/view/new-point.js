@@ -1,30 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { isEscape } from '../utils.js';
 import flatpickr from 'flatpickr';
-import { offerTypes } from '../consts.js';
-
-function createOffersTypeTemplate() {
-  let result = '';
-
-  for (let i = 0; i < offerTypes.length; i++) {
-
-    const offerName = Object.keys(offerTypes[i])[0];
-    const offerDesc = offerTypes[i][Object.keys(offerTypes[i])[0]];
-    const offerPrice = offerTypes[i].price;
-
-    result += `
-    <div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerName}-1" type="checkbox" name="event-offer-${offerName}">
-      <label class="event__offer-label" for="event-offer-${offerName}-1">
-        <span class="event__offer-title">${offerDesc}</span>
-        &plus;&euro;&nbsp;
-        <span class="event__offer-price">${offerPrice}</span>
-      </label>
-    </div>
-    `;
-  }
-  return result;
-}
 
 function createNewCardTemplate() {
   return (`
@@ -95,11 +71,7 @@ function createNewCardTemplate() {
             Flight
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="Geneva" list="destination-list-1">
-          <datalist id="destination-list-1">
-            <option value="Amsterdam"></option>
-            <option value="Geneva"></option>
-            <option value="Chamonix"></option>
-          </datalist>
+          <datalist id="destination-list-1"></datalist>
         </div>
 
         <div class="event__field-group  event__field-group--time">
@@ -121,37 +93,20 @@ function createNewCardTemplate() {
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
         <button class="event__reset-btn" type="reset">Cancel</button>
       </header>
-      <section class="event__details">
-        <section class="event__section  event__section--offers">
-          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
-          <div class="event__available-offers">
-            ${ createOffersTypeTemplate() }
-          </div>
-        </section>
-
-        <section class="event__section  event__section--destination">
-          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-          <p class="event__destination-description">Geneva is a city in Switzerland that lies at the southern tip of expansive Lac Léman (Lake Geneva). Surrounded by the Alps and Jura mountains, the city has views of dramatic Mont Blanc.</p>
-
-          <div class="event__photos-container">
-            <div class="event__photos-tape">
-              <img class="event__photo" src="img/photos/1.jpg" alt="Event photo">
-              <img class="event__photo" src="img/photos/2.jpg" alt="Event photo">
-              <img class="event__photo" src="img/photos/3.jpg" alt="Event photo">
-              <img class="event__photo" src="img/photos/4.jpg" alt="Event photo">
-              <img class="event__photo" src="img/photos/5.jpg" alt="Event photo">
-            </div>
-          </div>
-        </section>
-      </section>
+      <section class="event__details"></section>
     </form>
   </li>`
   );
 }
 
 export default class NewRouteView extends AbstractView {
-  newEventBtn = document.querySelector('.trip-main__event-add-btn');
+  #offers = null;
+  #offersView = null;
+
+  constructor (offers) {
+    super();
+    this.#offers = offers;
+  }
 
   get template () {
     return createNewCardTemplate();
@@ -164,6 +119,7 @@ export default class NewRouteView extends AbstractView {
   };
 
   onClickClose = () => {
+    document.querySelector('.trip-events__item-new').querySelector('.event__details').innerHTML = '';
     document.querySelector('.trip-events__item-new').remove();
     document.removeEventListener('keydown', this.onKeydownClose);
     document.querySelector('.trip-main__event-add-btn').disabled = !document.querySelector('.trip-main__event-add-btn').disabled;
@@ -199,9 +155,11 @@ export default class NewRouteView extends AbstractView {
     const enableTime = true;
 
     flatpickr(elem.querySelector('#event-start-time-1'),
-      { dateFormat, enableTime });
+      // eslint-disable-next-line camelcase
+      { dateFormat, enableTime, time_24hr: true });
 
     flatpickr(elem.querySelector('#event-end-time-1'),
-      { dateFormat, enableTime });
+      // eslint-disable-next-line camelcase
+      { dateFormat, enableTime, time_24hr: true });
   }
 }

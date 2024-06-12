@@ -831,3 +831,21 @@ main {
     padding-right: 20px; }
   .event__photo:not(:last-child) {
     margin-right: 5px; }
+
+.upcs {
+  text-transform: capitalize;
+}
+
+@keyframes loadAnim {
+  0% { background-size: 300% 100%; }
+  50% { background-size: 100% 100%; }
+  100% { background-size: 300% 100%; }
+}
+
+.loading-animation {
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-image: linear-gradient(to right, #ffffff, #000000);
+  animation: .5s infinite linear loadAnim;
+}
