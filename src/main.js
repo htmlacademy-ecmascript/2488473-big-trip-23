@@ -1,7 +1,7 @@
 import { connectionFields } from './consts.js';
 import Model from './model/first-model.js';
 import HeadPresenter from './presenter/head-presenter.js';
-
+// hooked--listener
 
 const Modeler = new Model(...connectionFields);
 

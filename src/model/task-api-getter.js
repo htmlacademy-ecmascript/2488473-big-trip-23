@@ -54,4 +54,14 @@ async function editRoute(ID, newRoute, allDestanation) {
     });
 }
 
-export { getOffers, getDestinations, removeRoute, getRoutes, editRoute };
+async function createRoute(newRoute, allDestanation) {
+  return await router
+    ._load({
+      url: 'big-trip/points',
+      method: 'POST',
+      body: JSON.stringify(adaptToServer(newRoute, allDestanation)),
+      headers: new Headers({ 'Content-Type': 'application/json' })
+    });
+}
+
+export { getOffers, getDestinations, removeRoute, getRoutes, editRoute, createRoute };

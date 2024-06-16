@@ -1,3 +1,4 @@
+import { getDateDiff } from './utils';
 
 const timeFormat = 'HH:mm';
 const timeFormatView = {
@@ -12,8 +13,14 @@ const connectionFields = ['https://23.objects.htmlacademy.pro', 'Basic aesadffda
 const filterFuncs = {
   everything: () => true,
   future: (item) => new Date(item.dateFrom) > new Date(),
-  present: (item) => item.dateFrom <= new Date() && item.dateTo >= new Date(),
-  past: (item) => item.dateTo < new Date()
+  present: (item) => new Date(item.dateFrom) <= new Date() && new Date(item.dateTo) >= new Date(),
+  past: (item) => new Date(item.dateTo) < new Date()
 };
 
-export { timeFormat as default, timeFormatEdit, connectionFields, timeFormatView, filterFuncs };
+const sortFuncs = {
+  'sort-day': (routeA, routeB) => new Date(routeA.dateTo) - new Date(routeB.dateTo),
+  'sort-time': (routeA, routeB) => getDateDiff(routeB.dateFrom, routeB.dateTo) - getDateDiff(routeA.dateFrom, routeA.dateTo),
+  'sort-price': (routeA, routeB) => routeB.basePrice - routeA.basePrice,
+};
+
+export { timeFormat as default, timeFormatEdit, connectionFields, timeFormatView, filterFuncs, sortFuncs };

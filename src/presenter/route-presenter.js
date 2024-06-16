@@ -9,17 +9,13 @@ import dayjs from 'dayjs';
 import OffersView from '../view/offers-list';
 import DestionationPhotoView from '../view/destionation-photo';
 import { editRoute, removeRoute } from '../model/task-api-getter';
-import UiBlocker from '../framework/ui-blocker/ui-blocker';
 
 export default class RoutePresenter {
   #container = document.querySelector('.trip-events__list');
   #patchFunc = null;
   #state = null;
 
-  #uiBlocker = new UiBlocker({
-    lowerLimit: 350,
-    upperLimit: 1000
-  });
+  #uiBlocker = null;
 
   #offers = null;
   #destionations = null;
@@ -35,8 +31,9 @@ export default class RoutePresenter {
   #legendView = null;
   #photoView = null;
 
-  constructor({ route, offers, destionations, closeAllRouteCb, patchFunc }) {
+  constructor({ route, offers, destionations, closeAllRouteCb, patchFunc, uiBlocker }) {
     this.#patchFunc = patchFunc;
+    this.#uiBlocker = uiBlocker;
 
     this.#offers = offers;
     this.#destionations = destionations;
@@ -116,7 +113,16 @@ export default class RoutePresenter {
 
   #toggleFavorite = () => {
     this.#route.isFavorite = !this.#route.isFavorite;
-    this.#reRenderRouteView();
+
+    editRoute(this.#route.id, this.#route, this.#destionations)
+      .then(() => {
+        this.#patchFunc('PATCH', this.#route.id, this.#route);
+        this.#reRenderRouteView();
+      })
+      .catch(() => {
+        this.#routeView.shake();
+        this.#route.isFavorite = !this.#route.isFavorite;
+      });
   };
 
 
@@ -238,8 +244,6 @@ export default class RoutePresenter {
   #handleBtnSave = (evt) => {
     evt.preventDefault();
 
-    const uiBlocker = new UiBlocker(350, 1000);
-
     const newRoute = {
       basePrice: Number(this.#editView.element.querySelector('#event-price-1').value),
       dateFrom: dayjs(this.#editView.element.querySelector('#event-start-time-1')._flatpickr.selectedDates).toJSON(),
@@ -252,7 +256,7 @@ export default class RoutePresenter {
     };
 
     if (!checkUpdate(this.#route, newRoute)) {
-      uiBlocker.block();
+      this.#uiBlocker.block();
       editRoute(this.#route.id, newRoute, this.#destionations)
         .then((resp) => {
           if (resp.ok) {
@@ -265,7 +269,7 @@ export default class RoutePresenter {
         .catch(() => {
           this.#editView.shake();
         });
-      uiBlocker.unblock();
+      this.#uiBlocker.unblock();
 
     } else {
       this.#switchEditToView();
@@ -339,39 +343,4 @@ export default class RoutePresenter {
       this.#switchEditToView();
     }
   };
-  //         this.editView
-  //           .element
-  //           .querySelector('.event__save-btn')
-  //           .addEventListener('click', (evt) => {
-  //             evt.preventDefault();
-  //             try {
-  //               this.offersView.element.remove();
-  //               this.#route.type = typeCopy;
-  //               this.routeView = new RouteView({ route: this.#route, allOffers: this.#allOffers
-  //                 .filter((item) => item.type === this.#route.type) });
-  //               replace(this.routeView, this.editView);
-  //               this.#rollupSubscribe();
-  //               this.editView.element.querySelector('.event__details').innerHTML = '';
-  //               this.#state = 'VIEW';
-  //             } catch { /* empty */ }
-  //           });
-
-  //         this.editView
-  //           .element
-  //           .querySelector('.event__reset-btn')
-  //           .addEventListener('click', (evt) => {
-  //             evt.target.textContent = 'Deleting...';
-  //             removeRoute(this.#route.id)
-  //               .then((data) => {
-  //                 if (data.status === 204) {
-  //                   this.editView.element.remove();
-  //                   document.removeEventListener('keydown', this.keydownHandlerClose);
-  //                 }
-  //               })
-  //               .catch(() => this.editView.shake(() => {}));
-  //           });
-  //         this.#state = 'EDIT';
-  //       } catch { /** empty */ }
-  //     });
-  // }
 }
