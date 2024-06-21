@@ -67,9 +67,7 @@ function createNewCardTemplate() {
         </div>
 
         <div class="event__field-group  event__field-group--destination">
-          <label class="event__label  event__type-output" for="event-destination-1">
-            Flight
-          </label>
+          <label class="event__label  event__type-output" for="event-destination-1">Flight</label>
           <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="Geneva" list="destination-list-1">
           <datalist id="destination-list-1"></datalist>
         </div>
@@ -112,16 +110,16 @@ export default class NewRouteView extends AbstractView {
     return createNewCardTemplate();
   }
 
-  onKeydownClose = (evt) => {
+  documentKeydownHandler = (evt) => {
     if (isEscape(evt)) {
-      this.onClickClose();
+      this.resetBtnClickHandler();
     }
   };
 
-  onClickClose = () => {
+  resetBtnClickHandler = () => {
     document.querySelector('.trip-events__item-new').querySelector('.event__details').innerHTML = '';
     document.querySelector('.trip-events__item-new').remove();
-    document.removeEventListener('keydown', this.onKeydownClose);
+    document.removeEventListener('keydown', this.documentKeydownHandler);
     document.querySelector('.trip-main__event-add-btn').disabled = !document.querySelector('.trip-main__event-add-btn').disabled;
   };
 
@@ -129,19 +127,19 @@ export default class NewRouteView extends AbstractView {
     const elem = document.querySelector('.trip-events__item-new');
     const elemCostInput = elem.querySelector('#event-price-1');
 
-    const elemDestantionInput = elem.querySelector('#event-destination-1');
+    const elemDestinationInput = elem.querySelector('#event-destination-1');
     const elemDateStart = elem.querySelector('#event-start-time-1');
     const elemDateEnd = elem.querySelector('#event-end-time-1');
 
-    [elemDestantionInput, elemDateStart, elemDateEnd].forEach((item) => {
+    [elemDestinationInput, elemDateStart, elemDateEnd].forEach((item) => {
       item.value = '';
     });
 
     document.querySelector('.trip-main__event-add-btn').disabled = !document.querySelector('.trip-main__event-add-btn').disabled;
-    document.addEventListener('keydown', this.onKeydownClose);
+    document.addEventListener('keydown', this.documentKeydownHandler);
     elem
       .querySelector('.event__reset-btn')
-      .addEventListener('click', this.onClickClose);
+      .addEventListener('click', this.resetBtnClickHandler);
 
     elemCostInput.value = '0';
 

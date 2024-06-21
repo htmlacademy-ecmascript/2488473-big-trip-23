@@ -1,13 +1,12 @@
-import RouteView from '../view/point-route';
-import EditView from '../view/edit-point';
-import DestionationView from '../view/destination-legend';
+import RouteView from '../view/route-view';
+import EditView from '../view/edit-route-view';
+import DestinationView from '../view/destination-legend-view';
 import { render, replace } from '../framework/render';
 import { isEscape, checkUpdate, getAllOffers } from '../utils';
 import flatpickr from 'flatpickr';
 import dayjs from 'dayjs';
-// import { removeRoute } from '../model/task-api-getter';
-import OffersView from '../view/offers-list';
-import DestionationPhotoView from '../view/destionation-photo';
+import OffersView from '../view/offers-view';
+import DestinationPhotoView from '../view/destination-photo-view';
 import { editRoute, removeRoute } from '../model/task-api-getter';
 
 export default class RoutePresenter {
@@ -18,27 +17,27 @@ export default class RoutePresenter {
   #uiBlocker = null;
 
   #offers = null;
-  #destionations = null;
+  #destinations = null;
 
-  #closeAllRoute = null;
+  #rollupClickCloseHandler = null;
 
   #route = null;
 
   #routeView = null;
   #editView = null;
 
-  #offesView = null;
+  #offersView = null;
   #legendView = null;
   #photoView = null;
 
-  constructor({ route, offers, destionations, closeAllRouteCb, patchFunc, uiBlocker }) {
+  constructor({ route, offers, destinations, closeAllRouteCb, patchFunc, uiBlocker }) {
     this.#patchFunc = patchFunc;
     this.#uiBlocker = uiBlocker;
 
     this.#offers = offers;
-    this.#destionations = destionations;
+    this.#destinations = destinations;
 
-    this.#closeAllRoute = closeAllRouteCb;
+    this.#rollupClickCloseHandler = closeAllRouteCb;
 
     this.#route = route;
 
@@ -74,7 +73,7 @@ export default class RoutePresenter {
   };
 
   #initEditView = () => {
-    const thisDestionation = this.#destionations.filter((el) => el.name === this.#route.destination)[0] || '';
+    const thisDestination = this.#destinations.filter((el) => el.name === this.#route.destination)[0] || '';
 
     const container = this.#editView.element
       .querySelector('.event__details');
@@ -82,12 +81,12 @@ export default class RoutePresenter {
     this.#initFlatpickr();
     this.#insertRealInfo();
     this.#initOffersChooserSubscribe(container);
-    this.#initDestInfoChooserSubscribe(container, thisDestionation);
+    this.#initDestInfoChooserSubscribe(container, thisDestination);
     this.#initSaveBtn();
     this.#initDeleteBtn();
   };
 
-  #switchViewToEdit = () => {
+  #rollupClickSwitchHandler = () => {
     replace(this.#editView, this.#routeView);
     this.#state = 'EDIT';
 
@@ -100,7 +99,7 @@ export default class RoutePresenter {
       .element
       .querySelector('.event__details')
       .innerHTML = '';
-    document.removeEventListener('keydown', this.#handleKeydownCloseEdit);
+    document.removeEventListener('keydown', this.#documentKeydownHandler);
 
     replace(this.#routeView, this.#editView);
     this.#state = 'VIEW';
@@ -111,10 +110,10 @@ export default class RoutePresenter {
 
   // -- MODEL EDIT -- [edit model] //
 
-  #toggleFavorite = () => {
+  #favoriteClickHandler = () => {
     this.#route.isFavorite = !this.#route.isFavorite;
 
-    editRoute(this.#route.id, this.#route, this.#destionations)
+    editRoute(this.#route.id, this.#route, this.#destinations)
       .then(() => {
         this.#patchFunc('PATCH', this.#route.id, this.#route);
         this.#reRenderRouteView();
@@ -132,23 +131,23 @@ export default class RoutePresenter {
     this.#routeView
       .element
       .querySelector('.event__favorite-btn')
-      .addEventListener('click', this.#toggleFavorite);
+      .addEventListener('click', this.#favoriteClickHandler);
   };
 
   #openEditViewSubscribe = () => {
     const rollupBtn = this.#routeView.element.querySelector('.event__rollup-btn');
 
-    rollupBtn.addEventListener('click', this.#closeAllRoute);
-    rollupBtn.addEventListener('click', this.#switchViewToEdit);
+    rollupBtn.addEventListener('click', this.#rollupClickCloseHandler);
+    rollupBtn.addEventListener('click', this.#rollupClickSwitchHandler);
   };
 
   #openRouteViewSubscribe = () => {
     this.#editView
       .element
       .querySelector('.event__rollup-btn')
-      .addEventListener('click', this.#switchEditToView);
+      .addEventListener('click', () => this.#switchEditToView);
 
-    document.addEventListener('keydown', this.#handleKeydownCloseEdit);
+    document.addEventListener('keydown', this.#documentKeydownHandler);
   };
 
   #initFlatpickr = () => {
@@ -163,12 +162,12 @@ export default class RoutePresenter {
     this.#editView.element.querySelector('#event-price-1').value = this.#route.basePrice;
   };
 
-  #initDestInfoChooserSubscribe = (container, thisDestionation) => {
+  #initDestInfoChooserSubscribe = (container, thisDestination) => {
 
-    this.#legendView = new DestionationView(thisDestionation === '' ? '' : thisDestionation.description);
+    this.#legendView = new DestinationView(thisDestination === '' ? '' : thisDestination.description);
     render(this.#legendView, container);
 
-    this.#photoView = new DestionationPhotoView(thisDestionation === '' ? [] : thisDestionation.pictures);
+    this.#photoView = new DestinationPhotoView(thisDestination === '' ? [] : thisDestination.pictures);
     render(this.#photoView, container);
 
     const inputEventName = this.#editView.element.querySelector('#event-destination-1');
@@ -178,23 +177,23 @@ export default class RoutePresenter {
     inputEventName.value = this.#route.destination;
 
     datalistContainer.innerHTML = '';
-    this.#destionations.forEach((item) => {
+    this.#destinations.forEach((item) => {
       datalistContainer.innerHTML += `<option value='${item.name}'></option>`;
     });
 
-    inputEventName.addEventListener('input', this.#handleInputDestionation(thisDestionation));
+    inputEventName.addEventListener('input', this.#getCorrectDestHandler(thisDestination));
   };
 
   #initOffersChooserSubscribe = (container) => {
-    this.#offesView = new OffersView(this.#route.offers, this.#offers.filter((el) => el.type === this.#route.type));
-    render(this.#offesView, container);
+    this.#offersView = new OffersView(this.#route.offers, this.#offers.filter((el) => el.type === this.#route.type));
+    render(this.#offersView, container);
 
-    const eventInFiledset = this.#editView.element.querySelector(`#event-type-${this.#route.type}-1`);
+    const eventInFieldset = this.#editView.element.querySelector(`#event-type-${this.#route.type}-1`);
     const eventTypeToggler = this.#editView.element.querySelector('.event__type-toggle');
     const eventTypeText = this.#editView.element.querySelector('.event__type-output');
     const eventTypeIcon = this.#editView.element.querySelector('.event__type-icon');
 
-    eventInFiledset.checked = true;
+    eventInFieldset.checked = true;
     eventTypeText.textContent = this.#route.type;
     eventTypeIcon.src = `img/icons/${this.#route.type}.png`;
 
@@ -209,18 +208,18 @@ export default class RoutePresenter {
   #initSaveBtn = () => {
     this.#editView.element
       .querySelector('.event__save-btn')
-      .addEventListener('click', this.#handleBtnSave);
+      .addEventListener('click', this.#saveBtnClickHandler);
   };
 
   #initDeleteBtn = () => {
     this.#editView.element
       .querySelector('.event__reset-btn')
-      .addEventListener('click', this.#handleBtnDelete);
+      .addEventListener('click', this.#deleteBtnClickHandler);
   };
 
   // -- HANDLERS -- //
 
-  #handleBtnDelete = (evt) => {
+  #deleteBtnClickHandler = (evt) => {
     evt.preventDefault();
     evt.target.textContent = 'Deleting...';
 
@@ -229,7 +228,7 @@ export default class RoutePresenter {
     removeRoute(this.#route.id)
       .then((resp) => {
         if (resp.status === 204) {
-          this.#unMountComponent();
+          this.unMountComponent();
           this.#patchFunc('DELETE', this.#route.id);
         }
       })
@@ -241,7 +240,7 @@ export default class RoutePresenter {
     this.#uiBlocker.unblock();
   };
 
-  #handleBtnSave = (evt) => {
+  #saveBtnClickHandler = (evt) => {
     evt.preventDefault();
 
     const newRoute = {
@@ -257,7 +256,8 @@ export default class RoutePresenter {
 
     if (!checkUpdate(this.#route, newRoute)) {
       this.#uiBlocker.block();
-      editRoute(this.#route.id, newRoute, this.#destionations)
+      evt.target.textContent = 'Saving...';
+      editRoute(this.#route.id, newRoute, this.#destinations)
         .then((resp) => {
           if (resp.ok) {
             this.#route = newRoute;
@@ -270,21 +270,22 @@ export default class RoutePresenter {
           this.#editView.shake();
         });
       this.#uiBlocker.unblock();
+      evt.target.textContent = 'Save';
 
     } else {
       this.#switchEditToView();
     }
   };
 
-  #handleInputDestionation = (thisDestionation) => (evt) => {
-    thisDestionation = this.#destionations.filter((el) => el.name === evt.target.value)[0];
+  #getCorrectDestHandler = (thisDestination) => (evt) => {
+    thisDestination = this.#destinations.filter((el) => el.name === evt.target.value)[0];
 
-    if (typeof thisDestionation !== 'undefined') {
-      const newLegendComponent = new DestionationView(thisDestionation.description);
+    if (typeof thisDestination !== 'undefined') {
+      const newLegendComponent = new DestinationView(thisDestination.description);
       replace(newLegendComponent, this.#legendView);
       this.#legendView = newLegendComponent;
 
-      const newPhotoComponent = new DestionationPhotoView(thisDestionation.pictures);
+      const newPhotoComponent = new DestinationPhotoView(thisDestination.pictures);
       replace(newPhotoComponent, this.#photoView);
       this.#photoView = newPhotoComponent;
     }
@@ -297,11 +298,11 @@ export default class RoutePresenter {
     eventTypeIcon.src = `img/icons/${evt.target.value}.png`;
 
     const newOffersComponent = new OffersView([], this.#offers.filter((el) => el.type === evt.target.value));
-    replace(newOffersComponent, this.#offesView);
-    this.#offesView = newOffersComponent;
+    replace(newOffersComponent, this.#offersView);
+    this.#offersView = newOffersComponent;
   };
 
-  #handleKeydownCloseEdit = (evt) => {
+  #documentKeydownHandler = (evt) => {
     if (isEscape(evt)) {
       this.#switchEditToView();
     }
@@ -320,7 +321,7 @@ export default class RoutePresenter {
 
   // -- MISC -- [init of lib and get options] //
 
-  #unMountComponent = () => {
+  unMountComponent = () => {
     if (this.#state === 'EDIT') {
       this.#switchEditToView();
     }

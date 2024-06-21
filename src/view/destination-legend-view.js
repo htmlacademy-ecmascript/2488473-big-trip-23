@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view';
 
-function createDestionationTemplate(legend) {
+function createDestinationTemplate(legend) {
   if (legend !== '') {
     return (`
       <section class="event__section  event__section--destination">
@@ -13,7 +13,7 @@ function createDestionationTemplate(legend) {
   }
 }
 
-export default class DestionationView extends AbstractView {
+export default class DestinationView extends AbstractView {
   #legend = null;
 
   constructor(legend) {
@@ -22,6 +22,6 @@ export default class DestionationView extends AbstractView {
   }
 
   get template () {
-    return createDestionationTemplate(this.#legend);
+    return createDestinationTemplate(this.#legend);
   }
 }

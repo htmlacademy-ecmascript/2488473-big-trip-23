@@ -9,27 +9,14 @@ function getRandomNumber(min, max) {
 }
 
 function isEscape(evt) {
-  if (evt.key === 'Escape') {
-    return true;
-  }
-
-  return false;
+  return evt.key === 'Escape';
 }
 
 function checkArrayUpdate(prevRoute, newRoute) {
-  if (prevRoute.length === newRoute.length) {
-    for (let i = 0; i < prevRoute.length; i++) {
-      if (!newRoute.includes(prevRoute[i])) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  return false;
+  return newRoute.every((item) => prevRoute.includes(item));
 }
 
-function checkUpdate(prevRoute, newRoute) { // -> retrun true if arrays equals
+function checkUpdate(prevRoute, newRoute) {
   return (
     prevRoute.basePrice === newRoute.basePrice &&
     prevRoute.dateFrom.slice(0, -5) === newRoute.dateFrom.slice(0, -5) &&
@@ -43,16 +30,39 @@ function checkUpdate(prevRoute, newRoute) { // -> retrun true if arrays equals
 }
 
 function getAllOffers (nodeList) {
-  const result = [];
+  const results = [];
 
   nodeList.forEach((node) => {
-    result.push(node.dataset.id);
+    results.push(node.dataset.id);
   });
-  return result;
+  return results;
 }
 
 function getDateDiff (dateFrom, dateTo) {
   return dayjs(dateTo).diff(dateFrom);
 }
 
-export { getRandomArrayElement as default, getRandomNumber, isEscape, checkUpdate, getAllOffers, getDateDiff };
+function getHeaderRow (routes) {
+  const destinations = [];
+  routes.map((item) => destinations.push(item.destination));
+
+  if (!destinations || !destinations.length) {
+    return '';
+  }
+
+  if (destinations.length === 1) {
+    return destinations[0];
+  }
+
+  if (destinations.length === 2) {
+    return `${destinations[0]} - ${destinations[1]}`;
+  }
+
+  const first = destinations[0];
+  const middle = destinations.slice(1, -1);
+  const last = destinations.at(-1);
+
+  return `${first} - ${middle.length === 1 ? middle[0] : '...'} - ${last}`;
+}
+
+export { getRandomArrayElement as default, getRandomNumber, isEscape, checkUpdate, getAllOffers, getDateDiff, getHeaderRow };

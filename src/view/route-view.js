@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import timeFormat, { timeFormatView } from '../consts.js';
+import TimeFormat, { TimeFormatView } from '../consts.js';
 import duration from 'dayjs/plugin/duration.js';
 import dayjs from 'dayjs';
 import { getDateDiff } from '../utils.js';
@@ -9,14 +9,14 @@ dayjs.extend(duration);
 function insertCorrectTimeFormatted (dateFrom, dateTo) {
   const date = dayjs.duration(getDateDiff(dateFrom, dateTo));
   if (date.days()) {
-    return date.format(timeFormatView.dayly);
+    return date.format(TimeFormatView.DAY);
   }
 
   if (date.hours()) {
-    return date.format(timeFormatView.hourly);
+    return date.format(TimeFormatView.HOUR);
   }
 
-  return date.format(timeFormatView.minutly);
+  return date.format(TimeFormatView.MINUTE);
 }
 
 function createRouteOffersTemplate(selected, all) {
@@ -54,9 +54,9 @@ function createRouteTemplate(data, allOffers) {
       <h3 class="event__title upcs">${eventTitle}</h3>
       <div class="event__schedule">
         <p class="event__time">
-          <time class="event__start-time" datetime="2019-03-18T14:30">${dataFrom.format(timeFormat)}</time>
+          <time class="event__start-time" datetime="2019-03-18T14:30">${dataFrom.format(TimeFormat)}</time>
           &mdash;
-          <time class="event__end-time" datetime="2019-03-18T16:05">${dataTo.format(timeFormat)}</time>
+          <time class="event__end-time" datetime="2019-03-18T16:05">${dataTo.format(TimeFormat)}</time>
         </p>
         <p class="event__duration">${insertCorrectTimeFormatted(dataFrom, dataTo)}</p>
       </div>

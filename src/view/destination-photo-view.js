@@ -1,10 +1,10 @@
 import AbstractView from '../framework/view/abstract-view';
 
-function createPhotoTemplate (array) {
+function createPhotoTemplate (photos) {
   let result = '';
 
-  if (array.length > 0) {
-    array.forEach((elem) => {
+  if (photos.length > 0) {
+    photos.forEach((elem) => {
       result += (`
         <img class="event__photo" src="${elem.src}" alt="Event photo">
       `);
@@ -22,7 +22,7 @@ function createPhotoTemplate (array) {
   }
 }
 
-export default class DestionationPhotoView extends AbstractView {
+export default class DestinationPhotoView extends AbstractView {
   #photos = null;
 
   constructor(photos) {

@@ -1,26 +1,17 @@
 import dayjs from 'dayjs';
 import AbstractView from '../framework/view/abstract-view.js';
 
-function createTopFrameTemplate (cost, destination, dates) {
+const FORMAT = 'DD MMM';
 
-  const format = 'DD MMM';
-  const firstDate = dayjs(dates.dateFrom[0]).format(format);
-  const lastDate = dayjs(dates.dateTo[dates.dateTo.length - 1]).format(format);
+function createTopFrameTemplate (cost, dates) {
 
-  let formattedTitle = '';
-
-  if (destination.length > 2) {
-    formattedTitle = `${destination[0]} - ... - ${destination[destination.length - 1]}`;
-  } else if (destination.length > 1) {
-    formattedTitle = `${destination[0]} - ${destination[1]}`;
-  } else {
-    formattedTitle = 'Точек нету :(';
-  }
+  const firstDate = dayjs(dates.dateFrom[0]).format(FORMAT);
+  const lastDate = dayjs(dates.dateTo[dates.dateTo.length - 1]).format(FORMAT);
 
   return `
   <section class="trip-main__trip-info  trip-info">
     <div class="trip-info__main">
-    <h1 class="trip-info__title">${formattedTitle}</h1>
+    <h1 class="trip-info__title"></h1>
 
     <p class="trip-info__dates">${firstDate} - ${lastDate}</p>
     </div>
@@ -35,12 +26,11 @@ export default class TopFrame extends AbstractView {
   #cost = null;
   #datesTo = null;
   #datesFrom = null;
-  #destionation = null;
 
-  constructor({ allRoutes, allDestanation }) {
+  constructor({ allRoutes }) {
     super();
+    this.allRoutes = allRoutes;
     this.#cost = allRoutes.reduce((currentSum, item) => currentSum + item.basePrice, 0);
-    this.#destionation = allDestanation.map((item) => item.name);
     this.#datesTo = this.#unpackDate(allRoutes, 'dateTo');
     this.#datesFrom = this.#unpackDate(allRoutes, 'dateFrom');
   }
@@ -50,7 +40,7 @@ export default class TopFrame extends AbstractView {
   }
 
   get template() {
-    return createTopFrameTemplate(this.#cost, this.#destionation, {
+    return createTopFrameTemplate(this.#cost, {
       dateFrom: this.#datesFrom,
       dateTo: this.#datesTo
     });
